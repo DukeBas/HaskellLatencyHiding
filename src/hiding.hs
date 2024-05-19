@@ -50,3 +50,23 @@ constantDelayTreeReduce base op delayUS list =
       ax_r <- wait asyncRecOp2
       asyncOp3 <- async $ runDelayedComputation delayUS (ax_l `op` ax_r)
       wait asyncOp3
+
+-- Naive fold based implementation to compare against
+constantDelayFoldLReduce :: a -> (a -> a -> DelayMonad a) -> DelayUS -> [a] -> IO a
+constantDelayFoldLReduce base op delayUS  = foldl f (return base)
+  where
+    -- f :: IO a -> a -> IO a
+    f acc x = do
+      ax <- acc
+      asyncOp <- async $ runDelayedComputation delayUS (ax `op` x)
+      wait asyncOp
+
+-- Naive fold based implementation to compare against
+constantDelayFoldRReduce :: a -> (a -> a -> DelayMonad a) -> DelayUS -> [a] -> IO a
+constantDelayFoldRReduce base op delayUS  = foldr f (return base)
+  where
+    -- f :: IO a -> a -> IO a
+    f x acc = do
+      ax <- acc
+      asyncOp <- async $ runDelayedComputation delayUS (ax `op` x)
+      wait asyncOp

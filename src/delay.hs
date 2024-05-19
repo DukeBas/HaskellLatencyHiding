@@ -30,9 +30,3 @@ wrapDelay op a b = do
     delayUS <- get
     delay delayUS
     return (a `op` b)
-
-
--- Example operator that uses delay
-delayedPlus :: Int -> Int -> DelayMonad Int
-delayedPlus = wrapDelay (+)
-
