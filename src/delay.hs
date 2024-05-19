@@ -36,5 +36,3 @@ wrapDelay op a b = do
 delayedPlus :: Int -> Int -> DelayMonad Int
 delayedPlus = wrapDelay (+)
 
-
-

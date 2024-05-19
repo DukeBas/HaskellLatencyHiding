@@ -1,13 +1,16 @@
 module Main where
+
 -- Testing and benchmarking
 
-import Hiding
-import Delay
+import Delay (DelayMonad, wrapDelay)
+import Hiding (constantDelayReduce)
 
--- Simple testing code
+main :: IO ()
 main = do
-  putStrLn "todo"
+  result <- constantDelayReduce 0 delayedPlus 1000000 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+  putStrLn "Result: "
+  print result
 
 -- Example operator that uses delay
 delayedPlus :: Int -> Int -> DelayMonad Int
-delayedPlus a b = wrapDelay (+) a b
+delayedPlus = wrapDelay (+)
