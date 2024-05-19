@@ -53,7 +53,7 @@ build-type:         Simple
 common warnings
     ghc-options: -Wall
 
-test-suite HaskellLatencyHiding-test
+executable HaskellLatencyHiding
     -- Import common warning flags.
     import:           warnings
 
@@ -66,15 +66,18 @@ test-suite HaskellLatencyHiding-test
     -- LANGUAGE extensions used by modules in this package.
     -- other-extensions:
 
-    -- The interface type and version of the test suite.
-    type:             exitcode-stdio-1.0
+    other-modules:    Hiding
+                      Delay
 
     -- Directories containing source files.
-    hs-source-dirs:   test
+    hs-source-dirs:   src
 
-    -- The entrypoint to the test suite.
+    -- The entrypoint module.
     main-is:          Main.hs
 
     -- Test dependencies.
-    build-depends:    base ^>=4.17.2.1
-                      random ^>=1.2
+    build-depends:    base ^>=4.17.2.1,
+                      transformers ^>=0.5.6.2,
+                      random ^>=1.2,
+                      async ^>=2.2.5
+                      
