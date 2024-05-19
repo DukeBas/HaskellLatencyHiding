@@ -34,4 +34,19 @@ constantDelayReduce base op delayUS list = r (map return list) []
     r [] [x] = wait x -- Computation finished, return the result
     r [] xs = r (map wait xs) [] -- Recurse on the asyncs list, wait for them to finish before combining the results again
 
--- todo: more recursive tree like thing like this as to not wait on all results
+-- Like constantDelayReduce, but with a tree structure to not wait for the whole list to be processed
+constantDelayTreeReduce :: a -> (a -> a -> DelayMonad a) -> DelayUS -> [a] -> IO a
+constantDelayTreeReduce base op delayUS list =
+  if null list
+    then return base
+    else red list
+  where
+    red [x] = return x
+    red xs = do
+      let (xs_l, xs_r) = splitAt (length xs `div` 2) xs -- Split the list in half
+      asyncRecOp1 <- async $ red xs_l
+      asyncRecOp2 <- async $ red xs_r
+      ax_l <- wait asyncRecOp1
+      ax_r <- wait asyncRecOp2
+      asyncOp3 <- async $ runDelayedComputation delayUS (ax_l `op` ax_r)
+      wait asyncOp3
