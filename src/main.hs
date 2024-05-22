@@ -24,4 +24,8 @@ delayedPlus = wrapDelay uniformDelay (+)
 uniformDelay :: () -> IO DelayUS
 uniformDelay _ = do
   gen <- createSystemRandom
-  uniformR (500000, 1000000) gen
+  uniformR (toS 0.5, toS 1) gen
+
+-- | Converts seconds to microseconds 
+toS :: Double -> DelayUS
+toS = floor . (* 1000000)
