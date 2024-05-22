@@ -79,5 +79,6 @@ executable HaskellLatencyHiding
     build-depends:    base ^>=4.17.2.1,
                       transformers ^>=0.5.6.2,
                       random ^>=1.2,
-                      async ^>=2.2.5
+                      async ^>=2.2.5,
+                      mwc-random ^>= 0.15.0.2
                       
