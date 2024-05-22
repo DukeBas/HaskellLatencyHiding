@@ -35,6 +35,7 @@ constantDelayReduce base op delayUS list = r (map return list) []
     r [] xs = r (map wait xs) [] -- Recurse on the asyncs list, wait for them to finish before combining the results again
 
 -- Like constantDelayReduce, but with a tree structure to not wait for the whole list to be processed
+-- Simpler, divide and conquer approach.
 constantDelayTreeReduce :: a -> (a -> a -> DelayMonad a) -> DelayUS -> [a] -> IO a
 constantDelayTreeReduce base op delayUS list =
   if null list
