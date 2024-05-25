@@ -5,6 +5,7 @@ module Delay where
 import Control.Concurrent (threadDelay)
 import Control.Concurrent.Async
 import Control.Monad.IO.Class (MonadIO, liftIO)
+import System.Random.MWC
 
 -- Type alias for delay in microseconds
 type DelayUS = Int
@@ -24,11 +25,24 @@ wrapDelay ::
   -- | Operator to wrap
   (a -> b -> c) ->
   -- | Wrapped operator
-  (a -> b -> IO c)
+  (a -> b -> IO(Async c))
 wrapDelay gen op a b =
   let delayUS = gen ()
-   in do
-        asyncRes <- async $ do
-          doDelay delayUS
-          return $ a `op` b
-        wait asyncRes
+   in async $
+        do
+          us <- delayUS
+          threadDelay us
+          return $ op a b
+
+constantDelay :: Double -> () -> IO DelayUS
+constantDelay = const . return . toS
+
+-- | Generate a random delay between 0.5 and 1 second
+uniformDelay :: () -> IO DelayUS
+uniformDelay _ = do
+  gen <- createSystemRandom
+  uniformR (toS 0.5, toS 1) gen
+
+-- \| Converts seconds to microseconds
+toS :: Double -> DelayUS
+toS = floor . (* 1000000)
