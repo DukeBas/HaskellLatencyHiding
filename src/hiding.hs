@@ -1,4 +1,7 @@
+{-# LANGUAGE BangPatterns #-}
+
 module Hiding where
+
 import Control.Concurrent.Async
 
 -- Communication efficient reduce, where the operation done has some inherent latency (for example due to network communication)
@@ -33,27 +36,32 @@ delayedReduce base op list = r (map return list) []
       do
         -- Computation finished, return the result
         wait x
-    r [] xs = 
+    r [] xs =
       -- Recurse on the asyncs list, wait for them to finish before combining the results again
       r (map wait xs) []
-      
 
--- -- Like constantDelayReduce, but with a tree structure to not wait for the whole list to be processed
--- -- Simpler, divide and conquer approach.
--- delayedTreeReduce :: a -> (a -> a -> IO(Async a)) -> [a] -> IO a
--- delayedTreeReduce base op list =
---   if null list
---     then return base
---     else red list
---   where
---     -- red :: [t] -> IO t
---     red [x] = return x
---     red xs = do
---       let (xs_l, xs_r) = splitAt (length xs `div` 2) xs -- Split the list in half
---       resL <- red xs_l
---       resR <- red xs_r
---       asyncRes <- op resL resR
---       wait asyncRes
+-- Like constantDelayReduce, but with a tree structure to not wait for the whole list to be processed
+-- Simpler, divide and conquer approach.
+delayedTreeReduce :: a -> (a -> a -> IO (Async a)) -> [a] -> IO a
+delayedTreeReduce base op list =
+  if null list
+    then return base
+    else do 
+      res <- red op list
+      wait res
+
+
+red :: (a -> a -> IO (Async a)) -> [a] -> IO (Async a)
+red _ [x] = async $ return x
+red op xs = do
+  let (xs_l, xs_r) = splitAt (length xs `div` 2) xs -- Split the list in half
+  !recL <- red op xs_l
+  !recR <- red op xs_r
+  !resL <- wait recL
+  !resR <- wait recR
+  !res <- op resL resR
+  res `seq` return res
+
 
 -- -- Naive foldL based implementation to compare against
 -- delayedFoldLReduce :: a -> (a -> a -> Async a) -> [a] -> IO a

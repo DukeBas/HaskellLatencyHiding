@@ -3,12 +3,12 @@ module Main where
 -- Testing and benchmarking
 
 import Delay (constantDelay, wrapDelay)
-import Hiding (delayedReduce)
+import Hiding (delayedTreeReduce)
 import Control.Concurrent.Async
 
 main :: IO ()
 main = do
-  result <- delayedReduce 0 delayedPlus [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+  result <- delayedTreeReduce 0 delayedPlus [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
   putStrLn "Result: "
   print result
 
