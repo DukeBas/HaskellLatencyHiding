@@ -2,9 +2,9 @@ module Main where
 
 -- Testing and benchmarking
 
-import Delay (constantDelay, wrapDelay)
-import Hiding (delayedTreeReduce)
 import Control.Concurrent.Async
+import Delay
+import Hiding
 
 main :: IO ()
 main = do
@@ -13,8 +13,8 @@ main = do
   print result
 
 -- Example operator, the + with a uniform random delay between 0 and 100 microseconds
-delayedPlus :: Int -> Int -> IO(Async Int)
-delayedPlus = wrapDelay (constantDelay 1) (+)
+delayedPlus :: Int -> Int -> IO (Async Int)
+delayedPlus = wrapDelay (uniformDelay 0.9 1) (+)
 
 -- TODOs:
 -- benchmark with http://www.serpentine.com/criterion/tutorial.html#be-careful-with-lazy-io

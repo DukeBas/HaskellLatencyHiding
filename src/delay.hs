@@ -25,7 +25,7 @@ wrapDelay ::
   -- | Operator to wrap
   (a -> b -> c) ->
   -- | Wrapped operator
-  (a -> b -> IO(Async c))
+  (a -> b -> IO (Async c))
 wrapDelay gen op a b =
   let delayUS = gen ()
    in async $
@@ -34,14 +34,15 @@ wrapDelay gen op a b =
           threadDelay us
           return $ op a b
 
+-- | Generate a constant delay
 constantDelay :: Double -> () -> IO DelayUS
 constantDelay = const . return . toS
 
--- | Generate a random delay between 0.5 and 1 second
-uniformDelay :: () -> IO DelayUS
-uniformDelay _ = do
+-- | Generate a random delay between lo and hi in seconds
+uniformDelay :: Double -> Double -> () -> IO DelayUS
+uniformDelay lo hi _ = do
   gen <- createSystemRandom
-  uniformR (toS 0.5, toS 1) gen
+  uniformR (toS lo, toS hi) gen
 
 -- \| Converts seconds to microseconds
 toS :: Double -> DelayUS

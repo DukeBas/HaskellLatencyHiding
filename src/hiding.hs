@@ -1,5 +1,3 @@
-{-# LANGUAGE BangPatterns #-}
-
 module Hiding where
 
 import Control.Concurrent.Async
@@ -46,39 +44,37 @@ delayedTreeReduce :: a -> (a -> a -> IO (Async a)) -> [a] -> IO a
 delayedTreeReduce base op list =
   if null list
     then return base
-    else do 
-      res <- red op list
-      wait res
+    else red list
+  where
+    red [x] = return x
+    red xs = do
+      let (xs_l, xs_r) = splitAt (length xs `div` 2) xs -- Split the list in half
+      -- Recurse on the left and right halves
+      asyncL <- async $ red xs_l
+      asyncR <- async $ red xs_r
+      -- Wait for results
+      resL <- wait asyncL
+      resR <- wait asyncR
+      -- Combine the results
+      opRes <- op resL resR
+      wait opRes
 
 
-red :: (a -> a -> IO (Async a)) -> [a] -> IO (Async a)
-red _ [x] = async $ return x
-red op xs = do
-  let (xs_l, xs_r) = splitAt (length xs `div` 2) xs -- Split the list in half
-  !recL <- red op xs_l
-  !recR <- red op xs_r
-  !resL <- wait recL
-  !resR <- wait recR
-  !res <- op resL resR
-  res `seq` return res
+-- Naive foldL based implementation to compare against
+delayedFoldLReduce :: a -> (a -> a -> IO(Async a)) -> [a] -> IO a
+delayedFoldLReduce base op = foldl f (return base)
+  where
+    f ioAcc x = do
+      acc <- ioAcc           -- Unwrap accumulated value
+      asyncOp <- op acc x    -- Do async operation with accumulated value and current element
+      wait asyncOp           -- Wait for the async operation to complete
 
+-- Naive foldR based implementation to compare against
+delayedFoldRReduce :: a -> (a -> a -> IO (Async a)) -> [a] -> IO a
+delayedFoldRReduce base op = foldr f (return base)
+  where
+    f x ioAcc = do
+      acc <- ioAcc           -- Unwrap accumulated value
+      asyncOp <- op x acc    -- Do async operation with accumulated value and current element
+      wait asyncOp           -- Wait for the async operation to complete
 
--- -- Naive foldL based implementation to compare against
--- delayedFoldLReduce :: a -> (a -> a -> Async a) -> [a] -> IO a
--- delayedFoldLReduce base op = foldl f (return base)
---   where
---     -- f :: IO a -> a -> IO a
---     f acc x = do
---       ax <- acc
---       asyncOp <- async $ runDelayedComputation (ax `op` x)
---       wait asyncOp
-
--- -- Naive foldR based implementation to compare against
--- delayedFoldRReduce :: a -> (a -> a -> Async a) -> [a] -> IO a
--- delayedFoldRReduce base op = foldr f (return base)
---   where
---     -- f :: IO a -> a -> IO a
---     f x acc = do
---       ax <- acc
---       asyncOp <- async $ runDelayedComputation (ax `op` x)
---       wait asyncOp
