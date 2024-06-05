@@ -80,5 +80,6 @@ executable HaskellLatencyHiding
                       transformers ^>=0.5.6.2,
                       random ^>=1.2,
                       async ^>=2.2.5,
-                      mwc-random ^>= 0.15.0.2
+                      mwc-random ^>= 0.15.0.2,
+                      criterion ^>= 1.6.3.0
                       
