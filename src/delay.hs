@@ -6,6 +6,7 @@ import Control.Concurrent (threadDelay)
 import Control.Concurrent.Async
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import System.Random.MWC
+import System.Random.MWC.Distributions (exponential)
 
 -- Type alias for delay in microseconds
 type DelayUS = Int
@@ -34,16 +35,23 @@ wrapDelay gen op a b =
           threadDelay us
           return $ op a b
 
--- | Generate a constant delay
+-- | Generate a constant delay, input is in seconds
 constantDelay :: Double -> () -> IO DelayUS
-constantDelay = const . return . toS
+constantDelay = const . return . toUS
 
--- | Generate a random delay between lo and hi in seconds
+-- | Generate a random delay between lo and hi in seconds with a uniform distribution
 uniformDelay :: Double -> Double -> () -> IO DelayUS
 uniformDelay lo hi _ = do
   gen <- createSystemRandom
-  uniformR (toS lo, toS hi) gen
+  uniformR (toUS lo, toUS hi) gen
+
+-- | Generate a random delay, with an exponential distribution with lambda rate
+exponentialDelay :: Double -> () -> IO DelayUS
+exponentialDelay rate _ = do
+  gen <- createSystemRandom
+  delay <- exponential rate gen
+  return $ toUS delay
 
 -- \| Converts seconds to microseconds
-toS :: Double -> DelayUS
-toS = floor . (* 1000000)
+toUS :: Double -> DelayUS
+toUS = floor . (* 1000000)
