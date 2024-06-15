@@ -29,11 +29,10 @@ wrapDelay ::
   (a -> b -> IO (Async c))
 wrapDelay gen op a b =
   let delayUS = gen ()
-   in async $
-        do
-          us <- delayUS
-          threadDelay us
-          return $ op a b
+   in async $ do
+        us <- delayUS
+        threadDelay us
+        return $ op a b
 
 -- | Generate a constant delay, input is in seconds
 constantDelay :: Double -> () -> IO DelayUS
