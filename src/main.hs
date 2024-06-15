@@ -99,7 +99,7 @@ createBenchGroup name operator input_list =
   bgroup
     name
     [ bench "delayedTreeReduce" $ whnfIO (delayedTreeReduce 0 operator input_list),
-      bench "-delayedReduce" $ whnfIO (delayedReduce 0 operator input_list),
+      bench "delayedReduce" $ whnfIO (delayedReduce 0 operator input_list),
       bench "delayedFoldLReduce" $ whnfIO (delayedFoldLReduce 0 operator input_list),
       bench "delayedFoldRReduce" $ whnfIO (delayedFoldRReduce 0 operator input_list)
     ]
