@@ -19,10 +19,10 @@ delayedReduce :: a -> (a -> a -> IO (Async a)) -> [a] -> IO a
 delayedReduce base op list = r (map return list) []
   where
     -- r :: [IO a] -> [Async a] -> IO a
-    r (IOx1 : IOx2 : xs) as = do
+    r (io_x1 : io_x2 : xs) as = do
       -- Main case, combine two elements
-      x1 <- IOx1
-      x2 <- IOx2
+      x1 <- io_x1
+      x2 <- io_x2
       asyncRes <- op x1 x2
       r xs (asyncRes : as)
     r [x] as = do
