@@ -19,24 +19,20 @@ delayedReduce :: a -> (a -> a -> IO (Async a)) -> [a] -> IO a
 delayedReduce base op list = r (map return list) []
   where
     -- r :: [IO a] -> [Async a] -> IO a
-    r (x1 : x2 : xs) as = do
+    r (IOx1 : IOx2 : xs) as = do
       -- Main case, combine two elements
-      ax1 <- x1
-      ax2 <- x2
-      asyncRes <- op ax1 ax2
+      x1 <- IOx1
+      x2 <- IOx2
+      asyncRes <- op x1 x2
       r xs (asyncRes : as)
-    r [x1] as = do
+    r [x] as = do
       -- Odd number of elements, push the last one wrapped to the output list
-      ax1 <- async x1
-      r [] (ax1 : as)
+      ax <- async x
+      r [] (ax : as)
     r [] [] = return base -- No input, return base. Base makes sense to be the identity element of the operation
-    r [] [x] =
-      do
-        -- Computation finished, return the result
-        wait x
-    r [] xs =
-      -- Recurse on the asyncs list, wait for them to finish before combining the results again
-      r (map wait xs) []
+    r [] [x] = wait x -- Computation finished, return the result
+    r [] xs = r (map wait xs) [] -- Recurse on the asyncs list, wait for them to finish before combining the results again
+      
 
 -- Like constantDelayReduce, but with a tree structure to not wait for the whole list to be processed
 -- Simpler, divide and conquer approach.
