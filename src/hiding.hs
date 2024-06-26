@@ -14,7 +14,7 @@ simpleReduce base op list = r list []
     r [] [x] = x -- Computation finished, return the result
     r [] xs = r xs [] -- Recurse on the output list to combine the results again
 
--- Like simpleReduce, but with a constant delay in the operation
+-- Like simpleReduce, but for delayed operation.
 delayedReduce :: a -> (a -> a -> IO (Async a)) -> [a] -> IO a
 delayedReduce base op list = r (map return list) []
   where
