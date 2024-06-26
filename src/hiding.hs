@@ -32,7 +32,6 @@ delayedReduce base op list = r (map return list) []
     r [] [] = return base -- No input, return base. Base makes sense to be the identity element of the operation
     r [] [x] = wait x -- Computation finished, return the result
     r [] xs = r (map wait xs) [] -- Recurse on the asyncs list, wait for them to finish before combining the results again
-      
 
 -- Like constantDelayReduce, but with a tree structure to not wait for the whole list to be processed
 -- Simpler, divide and conquer approach.
@@ -44,33 +43,28 @@ delayedTreeReduce base op list =
   where
     red [x] = return x
     red xs = do
-      let (xs_l, xs_r) = splitAt (length xs `div` 2) xs -- Split the list in half
-      -- Recurse on the left and right halves
-      asyncL <- async $ red xs_l
-      asyncR <- async $ red xs_r
-      -- Wait for results
-      resL <- wait asyncL
-      resR <- wait asyncR
+      -- Split the list in half
+      let (xs_l, xs_r) = splitAt (length xs `div` 2) xs
+      -- Recurse on the left and right halves, and wait for results
+      (resL, resR) <- concurrently (red xs_l) (red xs_r)
       -- Combine the results
       opRes <- op resL resR
       wait opRes
 
-
 -- Naive foldL based implementation to compare against
-delayedFoldLReduce :: a -> (a -> a -> IO(Async a)) -> [a] -> IO a
+delayedFoldLReduce :: a -> (a -> a -> IO (Async a)) -> [a] -> IO a
 delayedFoldLReduce base op = foldl f (return base)
   where
     f ioAcc x = do
-      acc <- ioAcc           -- Unwrap accumulated value
-      asyncOp <- op acc x    -- Do async operation with accumulated value and current element
-      wait asyncOp           -- Wait for the async operation to complete
+      acc <- ioAcc -- Unwrap accumulated value
+      asyncOp <- op acc x -- Do async operation with accumulated value and current element
+      wait asyncOp -- Wait for the async operation to complete
 
 -- Naive foldR based implementation to compare against
 delayedFoldRReduce :: a -> (a -> a -> IO (Async a)) -> [a] -> IO a
 delayedFoldRReduce base op = foldr f (return base)
   where
     f x ioAcc = do
-      acc <- ioAcc           -- Unwrap accumulated value
-      asyncOp <- op x acc    -- Do async operation with accumulated value and current element
-      wait asyncOp           -- Wait for the async operation to complete
-
+      acc <- ioAcc -- Unwrap accumulated value
+      asyncOp <- op x acc -- Do async operation with accumulated value and current element
+      wait asyncOp -- Wait for the async operation to complete
