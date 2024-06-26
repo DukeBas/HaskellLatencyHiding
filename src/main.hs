@@ -33,9 +33,10 @@ main =
         constant_100_ms = wrapPlus (constantDelay 0.1)
         constant_1000_ms = wrapPlus (constantDelay 1)
     -- Then delays with uniform distribution, scaling the range of the delays
-    let uniform_1_11_ms = wrapPlus (uniformDelay 0.001 0.011)
-        uniform_10_110_ms = wrapPlus (uniformDelay 0.01 0.11)
-        uniform_100_1100_ms = wrapPlus (uniformDelay 0.1 1.1)
+    let uniform_0_2_ms = wrapPlus (uniformDelay 0.000 0.002)
+        uniform_0_20_ms = wrapPlus (uniformDelay 0.000 0.020)
+        uniform_0_200_ms = wrapPlus (uniformDelay 0.000 0.200)
+        uniform_0_2000_ms = wrapPlus (uniformDelay 0.000 2.000)
     -- Lastly, delays with an exponential distribution to more accurately mimic real network delays
     let exponential_1 = wrapPlus (exponentialDelay 1000)
         exponential_10 = wrapPlus (exponentialDelay (1000 :: Double))
@@ -52,8 +53,8 @@ main =
           ]
           [("short", short), ("medium", medium)],
         createBenchMatrix
-          [ ("uniform_1_11_ms", uniform_1_11_ms),
-            ("uniform_10_110_ms", uniform_10_110_ms)
+          [ ("uniform_0_2_ms", uniform_0_2_ms),
+            ("uniform_0_20_ms", uniform_0_20_ms)
           ]
           [("short", short), ("medium", medium)],
         createBenchMatrix
@@ -71,9 +72,10 @@ main =
           ]
           [("long", long), ("extreme", extreme)],
         createFastBenchMatrix
-          [ ("uniform_1_11_ms", uniform_1_11_ms),
-            ("uniform_10_110_ms", uniform_10_110_ms),
-            ("uniform_100_1100_ms", uniform_100_1100_ms)
+          [ ("uniform_0_2_ms", uniform_0_2_ms),
+            ("uniform_0_20_ms", uniform_0_20_ms),
+            ("uniform_0_200_ms", uniform_0_200_ms),
+            ("uniform_0_2000_ms", uniform_0_2000_ms)
           ]
           [("long", long), ("extreme", extreme)],
         createFastBenchMatrix
