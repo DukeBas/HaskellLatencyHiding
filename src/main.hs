@@ -25,6 +25,7 @@ main =
     long <- generateRandomList lo hi 10000
     extreme <- generateRandomList lo hi 100000
     -- Setup operators -- Note that we only use + as the operator itself is not so relevant but moreso that it is wrapped with delay
+    --    (note that multiplication might make more sense for an MPC context but is more sensitive to overflow here)
     -- We differentiate in what distribution the delays are generated
     -- First constant delays
     let constant_1_ms = wrapPlus (constantDelay 0.001)
