@@ -11,13 +11,6 @@ import System.Random.MWC.Distributions (exponential)
 -- Type alias for delay in microseconds
 type DelayUS = Int
 
--- | Delay function, simply halts the computation for the given number of microseconds.
--- | Useful for simulating network delays in testing.
-doDelay :: (MonadIO m) => m DelayUS -> m ()
-doDelay us = do
-  us_ <- us
-  liftIO $ threadDelay us_
-
 -- | Takes some operator and makes it delayed based on some distribution of delays.
 -- | Useful for mimicking network delays in testing.
 wrapDelay ::
