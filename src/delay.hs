@@ -1,10 +1,9 @@
 module Delay where
 
--- Module that exposes mimicking network delay
+-- Module that exposes mimicking network delay functionality
 
 import Control.Concurrent (threadDelay)
 import Control.Concurrent.Async
-import Control.Monad.IO.Class (MonadIO, liftIO)
 import System.Random.MWC
 import System.Random.MWC.Distributions (exponential)
 

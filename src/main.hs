@@ -1,12 +1,8 @@
-{-# OPTIONS_GHC -Wno-type-defaults #-}
-
 module Main where
 
 -- Testing and benchmarking
 
 import Control.Concurrent.Async
--- Benchmarking
-
 import qualified Control.Monad
 import Criterion.Main
 import Delay
@@ -38,8 +34,8 @@ main =
         uniform_0_200_ms = wrapPlus (uniformDelay 0.000 0.200)
         uniform_0_2000_ms = wrapPlus (uniformDelay 0.000 2.000)
     -- Lastly, delays with an exponential distribution to more accurately mimic real network delays
-    let exponential_1 = wrapPlus (exponentialDelay 1000)
-        exponential_10 = wrapPlus (exponentialDelay (1000 :: Double))
+    let exponential_1 = wrapPlus (exponentialDelay (1000 :: Double))
+        exponential_10 = wrapPlus (exponentialDelay (100 :: Double))
         exponential_100 = wrapPlus (exponentialDelay (10 :: Double))
         exponential_1000 = wrapPlus (exponentialDelay (1 :: Double))
 
@@ -53,12 +49,15 @@ main =
           ]
           [("short", short), ("medium", medium)],
         createBenchMatrix
-          [ ("uniform_0_2_ms", uniform_0_2_ms),
-            ("uniform_0_20_ms", uniform_0_20_ms)
+          [ 
+            ("uniform_0_2_ms", uniform_0_2_ms),
+            ("uniform_0_20_ms", uniform_0_20_ms),
+            ("uniform_0_200_ms", uniform_0_200_ms)
           ]
           [("short", short), ("medium", medium)],
         createBenchMatrix
-          [ ("exponential_1", exponential_1),
+          [ 
+            ("exponential_1", exponential_1),
             ("exponential_10", exponential_10),
             ("exponential_100", exponential_100)
           ]
@@ -79,7 +78,8 @@ main =
           ]
           [("long", long), ("extreme", extreme)],
         createFastBenchMatrix
-          [ ("exponential_1", exponential_1),
+          [ 
+            ("exponential_1", exponential_1),
             ("exponential_10", exponential_10),
             ("exponential_100", exponential_100),
             ("exponential_1000", exponential_1000)
